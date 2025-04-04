@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="icon" href="favicon.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find the Place</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            font-size: 40px;
+            font-weight: bold;
+        }
+        h2 {
+            font-size: 20px;
+        }
+        .menu, .difficulty, .game-screen {
+            display: none;
+        }
+        .visible {
+            display: block;
+        }
+        button {
+            font-size: 24px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .easy { background-color: green; color: white; }
+        .medium { background-color: gold; color: white; }
+        .hard { background-color: brown; color: white; }
+        .black-button { background-color: black; color: white; }
+        .game-screen img {
+            width: 400px;
+            height: auto;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Menu -->
+    <div id="menu" class="menu visible">
+        <h1>FIND THE PLACE</h1>
+        <h2>GUESS THE PHILIPPINE PLACES</h2>
+        <button class="black-button" onclick="showDifficulty()">START GAME</button>
+        <button class="black-button">ABOUT THE GAME</button>
+        <button class="black-button">CREATORS</button>
+        <p>The Picture does not belong to me and I do not claim any ownership of it.</p>
+    </div>
+    
+    <!-- Difficulty Selection -->
+    <div id="difficulty" class="difficulty">
+        <h1>FIND THE PLACE</h1>
+        <h2>GUESS THE PHILIPPINE PLACES</h2>
+        <h2>SELECT YOUR DIFFICULTY</h2>
+        <button class="easy" onclick="startGame('easy', 300)">Easy</button>
+        <button class="medium" onclick="startGame('medium', 180)">Medium</button>
+        <button class="hard" onclick="startGame('hard', 60)">Hard</button>
+        <p>The Picture does not belong to me and I do not claim any ownership of it.</p>
+    </div>
+    
+    <!-- Game Screen -->
+    <div id="game" class="game-screen">
+        <h1>FIND THE PLACE</h1>
+        <h2>GUESS THE PHILIPPINE PLACES</h2>
+        <button id="difficultyLabel" class="easy">Easy</button>
+        <button class="hard" id="timer">5:00</button>
+        <br>
+        <img id="gameImage" src="game-image-easy.jpg" alt="Game Image">
+        <br>
+        <h3 id="hint">Hint: Heart of the Philippines</h3>
+        <input type="text" id="answerInput" placeholder="Answer">
+        <button onclick="checkAnswer()">Submit</button>
+        <p>The Picture does not belong to me and I do not claim any ownership of it.</p>
+    </div>
+    
+    <script>
+        let timeRemaining;
+        let timerInterval;
+        let currentLevel = 'easy';
+        const answers = {
+            easy: "Marinduque",
+            medium: "Calamba",
+            hard: "Baguio"
+        };
+
+        function showDifficulty() {
+            document.getElementById('menu').classList.remove('visible');
+            document.getElementById('difficulty').classList.add('visible');
+        }
+        
+        function startGame(level, time) {
+            document.getElementById('difficulty').classList.remove('visible');
+            document.getElementById('game').classList.add('visible');
+            document.getElementById('difficultyLabel').innerText = level.charAt(0).toUpperCase() + level.slice(1);
+            document.getElementById('difficultyLabel').className = level;
+            document.getElementById('gameImage').src = `game-image-${level}.jpg`;
+            document.getElementById('hint').innerText = level === 'easy' ? "Hint: Heart of the Philippines" : level === 'medium' ? "Hint: Home of the Hero" : "Hint: Northernmost Province";
+            
+            currentLevel = level;
+            timeRemaining = time;
+            updateTimer();
+            timerInterval = setInterval(countdown, 1000);
+        }
+        
+        function countdown() {
+            if (timeRemaining > 0) {
+                timeRemaining--;
+                updateTimer();
+            } else {
+                clearInterval(timerInterval);
+                alert("Time's up! You lost.");
+                returnToMainMenu();
+            }
+        }
+        
+        function updateTimer() {
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            document.getElementById('timer').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+        
+        function checkAnswer() {
+            let userAnswer = document.getElementById('answerInput').value.trim();
+            if (userAnswer.toLowerCase() === answers[currentLevel].toLowerCase()) {
+                clearInterval(timerInterval);
+                alert("Correct! Proceeding to the next level.");
+                proceedToNextLevel();
+            } else {
+                timeRemaining -= 10; // Penalize wrong answer
+                if (timeRemaining <= 0) {
+                    timeRemaining = 0;
+                    clearInterval(timerInterval);
+                    alert("Time's up! You lost.");
+                    returnToMainMenu();
+                }
+                updateTimer();
+            }
+        }
+        
+        function proceedToNextLevel() {
+            if (currentLevel === 'easy') {
+                startGame('medium', 180);
+            } else if (currentLevel === 'medium') {
+                startGame('hard', 60);
+            } else {
+                alert("Congratulations! You completed all levels.");
+                returnToMainMenu();
+            }
+        }
+        
+        function returnToMainMenu() {
+            document.getElementById('game').classList.remove('visible');
+            document.getElementById('menu').classList.add('visible');
+        }
+    </script>
+</body>
+</html>
